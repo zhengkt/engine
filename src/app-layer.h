@@ -30,26 +30,26 @@
 #include "stream-tcp-private.h"
 #include "stream-tcp-reassemble.h"
 
-
 #include "rust.h"
 
 #define APP_LAYER_DATA_ALREADY_SENT_TO_APP_LAYER \
-    (~STREAM_TOSERVER & ~STREAM_TOCLIENT)
+  (~STREAM_TOSERVER & ~STREAM_TOCLIENT)
 
 /***** L7 layer dispatchers *****/
 
 /**
  * \brief Handles reassembled tcp stream.
  */
-int AppLayerHandleTCPData(ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx, Packet *p, Flow *f,
-        TcpSession *ssn, TcpStream **stream, uint8_t *data, uint32_t data_len, uint8_t flags,
-        enum StreamUpdateDir dir);
+int AppLayerHandleTCPData(ThreadVars *tv, TcpReassemblyThreadCtx *ra_ctx,
+                          Packet *p, Flow *f, TcpSession *ssn,
+                          TcpStream **stream, uint8_t *data, uint32_t data_len,
+                          uint8_t flags, enum StreamUpdateDir dir);
 
 /**
  * \brief Handles an udp chunk.
  */
-int AppLayerHandleUdp(ThreadVars *tv, AppLayerThreadCtx *app_tctx,
-                      Packet *p, Flow *f);
+int AppLayerHandleUdp(ThreadVars *tv, AppLayerThreadCtx *app_tctx, Packet *p,
+                      Flow *f);
 
 /***** Utility *****/
 
@@ -117,19 +117,18 @@ void AppLayerRegisterThreadCounters(ThreadVars *tv);
 
 void AppLayerProfilingResetInternal(AppLayerThreadCtx *app_tctx);
 
-static inline void AppLayerProfilingReset(AppLayerThreadCtx *app_tctx)
-{
+static inline void AppLayerProfilingReset(AppLayerThreadCtx *app_tctx) {
 #ifdef PROFILING
-    AppLayerProfilingResetInternal(app_tctx);
+  AppLayerProfilingResetInternal(app_tctx);
 #endif
 }
 
 void AppLayerProfilingStoreInternal(AppLayerThreadCtx *app_tctx, Packet *p);
 
-static inline void AppLayerProfilingStore(AppLayerThreadCtx *app_tctx, Packet *p)
-{
+static inline void AppLayerProfilingStore(AppLayerThreadCtx *app_tctx,
+                                          Packet *p) {
 #ifdef PROFILING
-    AppLayerProfilingStoreInternal(app_tctx, p);
+  AppLayerProfilingStoreInternal(app_tctx, p);
 #endif
 }
 
@@ -147,14 +146,13 @@ void AppLayerIncAllocErrorCounter(ThreadVars *tv, Flow *f);
 void AppLayerIncParserErrorCounter(ThreadVars *tv, Flow *f);
 void AppLayerIncInternalErrorCounter(ThreadVars *tv, Flow *f);
 
-static inline const uint8_t *StreamSliceGetData(const StreamSlice *stream_slice)
-{
-    return stream_slice->input;
+static inline const uint8_t *StreamSliceGetData(
+    const StreamSlice *stream_slice) {
+  return stream_slice->input;
 }
 
-static inline uint32_t StreamSliceGetDataLen(const StreamSlice *stream_slice)
-{
-    return stream_slice->input_len;
+static inline uint32_t StreamSliceGetDataLen(const StreamSlice *stream_slice) {
+  return stream_slice->input_len;
 }
 
 #endif

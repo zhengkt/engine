@@ -135,7 +135,7 @@
 #define HAVE_GETPAGESIZE 1
 
 /* Use getrandom */
-#define HAVE_GETRANDOM 1
+/* #undef HAVE_GETRANDOM */
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #define HAVE_GETTIMEOFDAY 1
@@ -220,7 +220,7 @@
 /* #undef HAVE_LIBHTP */
 
 /* Define to 1 if you have the `iconv' library (-liconv). */
-/* #undef HAVE_LIBICONV */
+#define HAVE_LIBICONV 1
 
 /* Define to 1 if you have the `jansson' library (-ljansson). */
 #define HAVE_LIBJANSSON 1
@@ -281,7 +281,7 @@
 #define HAVE_LIBPTHREAD 1
 
 /* Define to 1 if you have the `systemd' library (-lsystemd). */
-/* #undef HAVE_LIBSYSTEMD */
+#define HAVE_LIBSYSTEMD 1
 
 /* Define to 1 if you have the `unwind' library (-lunwind). */
 /* #undef HAVE_LIBUNWIND */
@@ -320,7 +320,7 @@
 #define HAVE_LINUX_IF_PACKET_H 1
 
 /* Define to 1 if you have the <linux/landlock.h> header file. */
-#define HAVE_LINUX_LANDLOCK_H 1
+/* #undef HAVE_LINUX_LANDLOCK_H */
 
 /* Define to 1 if you have the <linux/sockios.h> header file. */
 #define HAVE_LINUX_SOCKIOS_H 1
@@ -355,6 +355,9 @@
 
 /* Define to 1 if you have the `memmove' function. */
 #define HAVE_MEMMOVE 1
+
+/* Define to 1 if you have the <memory.h> header file. */
+#define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `memrchr' function. */
 #define HAVE_MEMRCHR 1
@@ -411,7 +414,7 @@
 /* #undef HAVE_PACKET_EBPF */
 
 /* Recent packet fanout support is available */
-#define HAVE_PACKET_FANOUT 1
+/* #undef HAVE_PACKET_FANOUT */
 
 /* XDP support is available */
 /* #undef HAVE_PACKET_XDP */
@@ -484,7 +487,7 @@
 #define HAVE_STDARG_H 1
 
 /* Define to 1 if you have the <stdatomic.h> header file. */
-#define HAVE_STDATOMIC_H 1
+/* #undef HAVE_STDATOMIC_H */
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #define HAVE_STDBOOL_H 1
@@ -577,7 +580,7 @@
 #define HAVE_SYS_QUEUE_H 1
 
 /* Define to 1 if you have the <sys/random.h> header file. */
-#define HAVE_SYS_RANDOM_H 1
+/* #undef HAVE_SYS_RANDOM_H */
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
 #define HAVE_SYS_RESOURCE_H 1
@@ -668,7 +671,8 @@
 /* Enable FreeBSD IPFW support for inline IDP */
 /* #undef IPFW */
 
-/* Define to the sub-directory where libtool stores uninstalled libraries. */
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
 #define LT_OBJDIR ".libs/"
 
 /* (Napatech flowdirector support) */
@@ -717,15 +721,16 @@
 /* #undef PROFILING */
 
 /* Git revision */
-#define REVISION 21ec99aa7 2023-07-18
+#define REVISION 44354af 2023-08-02
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
-   required in a freestanding environment). This macro is provided for
-   backward compatibility; new code need not use it. */
+/* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
+/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+#define TIME_WITH_SYS_TIME 1
+
 /* C11 Thread local storage */
-#define TLS_C11 1
+/* #undef TLS_C11 */
 
 /* Thread local storage */
 #define TLS_GNU 1
@@ -744,6 +749,11 @@
 
 /* (bsd source) */
 #define _BSD_SOURCE 1
+
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
 
 /* (default source) */
 #define _DEFAULT_SOURCE 1
@@ -803,7 +813,7 @@
 /* Define to `int' if <sys/types.h> does not define. */
 /* #undef mode_t */
 
-/* Define as a signed integer type capable of holding a process identifier. */
+/* Define to `int' if <sys/types.h> does not define. */
 /* #undef pid_t */
 
 /* Define to rpl_realloc if the replacement function should be used. */
@@ -811,15 +821,14 @@
 
 /* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
-   supported only directly.  */
-#define restrict __restrict__
-/* Work around a bug in older versions of Sun C++, which did not
-   #define __restrict__ or support _Restrict or __restrict__
-   even though the corresponding Sun C compiler ended up with
-   "#define restrict _Restrict" or "#define restrict __restrict__"
-   in the previous line.  This workaround can be removed once
-   we assume Oracle Developer Studio 12.5 (2016) or later.  */
-#if defined __SUNPRO_CC && !defined __RESTRICT && !defined __restrict__
+   supported directly.  */
+#define restrict __restrict
+/* Work around a bug in Sun C++: it does not support _Restrict or
+   __restrict__, even though the corresponding Sun C compiler ends up with
+   "#define restrict _Restrict" or "#define restrict __restrict__" in the
+   previous line.  Perhaps some future version of Sun C++ will work with
+   restrict; if so, hopefully it defines __RESTRICT like Sun C does.  */
+#if defined __SUNPRO_CC && !defined __RESTRICT
 # define _Restrict
 # define __restrict__
 #endif
