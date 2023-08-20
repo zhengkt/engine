@@ -27,7 +27,7 @@
 
 #define MAX_DEVNAME 10
 
-static LiveDevStorageId g_bypass_storage_id = { .id = -1 };
+static LiveDevStorageId g_bypass_storage_id = {.id = -1};
 
 /**
  * \file
@@ -38,8 +38,8 @@ static LiveDevStorageId g_bypass_storage_id = { .id = -1 };
  */
 
 /** private device list */
-static TAILQ_HEAD(, LiveDevice_) live_devices =
-    TAILQ_HEAD_INITIALIZER(live_devices);
+static TAILQ_HEAD(, LiveDevice_)
+    live_devices = TAILQ_HEAD_INITIALIZER(live_devices);
 
 /** List of the name of devices
  *
@@ -47,41 +47,31 @@ static TAILQ_HEAD(, LiveDevice_) live_devices =
  * before the parsing we need to wait and use this list
  * to create later the LiveDevice via LiveDeviceFinalize()
  */
-static TAILQ_HEAD(, LiveDeviceName_) pre_live_devices =
-    TAILQ_HEAD_INITIALIZER(pre_live_devices);
+static TAILQ_HEAD(, LiveDeviceName_)
+    pre_live_devices = TAILQ_HEAD_INITIALIZER(pre_live_devices);
 
 typedef struct BypassInfo_ {
-    SC_ATOMIC_DECLARE(uint64_t, ipv4_hash_count);
-    SC_ATOMIC_DECLARE(uint64_t, ipv4_fail);
-    SC_ATOMIC_DECLARE(uint64_t, ipv4_success);
-    SC_ATOMIC_DECLARE(uint64_t, ipv6_hash_count);
-    SC_ATOMIC_DECLARE(uint64_t, ipv6_fail);
-    SC_ATOMIC_DECLARE(uint64_t, ipv6_success);
+  SC_ATOMIC_DECLARE(uint64_t, ipv4_hash_count);
+  SC_ATOMIC_DECLARE(uint64_t, ipv4_fail);
+  SC_ATOMIC_DECLARE(uint64_t, ipv4_success);
+  SC_ATOMIC_DECLARE(uint64_t, ipv6_hash_count);
+  SC_ATOMIC_DECLARE(uint64_t, ipv6_fail);
+  SC_ATOMIC_DECLARE(uint64_t, ipv6_success);
 } BypassInfo;
 
 /** if set to 0 when we don't have real devices */
 static int live_devices_stats = 1;
 
-
-static int LiveSafeDeviceName(const char *devname,
-                              char *newdevname, size_t destlen);
+static int LiveSafeDeviceName(const char *devname, char *newdevname,
+                              size_t destlen);
 
 static int g_live_devices_disable_offloading = 1;
 
-void LiveSetOffloadDisable(void)
-{
-    g_live_devices_disable_offloading = 1;
-}
+void LiveSetOffloadDisable(void) { g_live_devices_disable_offloading = 1; }
 
-void LiveSetOffloadWarn(void)
-{
-    g_live_devices_disable_offloading = 0;
-}
+void LiveSetOffloadWarn(void) { g_live_devices_disable_offloading = 0; }
 
-int LiveGetOffload(void)
-{
-    return g_live_devices_disable_offloading;
-}
+int LiveGetOffload(void) { return g_live_devices_disable_offloading; }
 
 /**
  *  \brief Add a device for monitoring
@@ -94,25 +84,24 @@ int LiveGetOffload(void)
  *  \retval 0 on success.
  *  \retval -1 on failure.
  */
-int LiveRegisterDeviceName(const char *dev)
-{
-    LiveDeviceName *pd = NULL;
+int LiveRegisterDeviceName(const char *dev) {
+  LiveDeviceName *pd = NULL;
 
-    pd = SCCalloc(1, sizeof(LiveDeviceName));
-    if (unlikely(pd == NULL)) {
-        return -1;
-    }
+  pd = SCCalloc(1, sizeof(LiveDeviceName));
+  if (unlikely(pd == NULL)) {
+    return -1;
+  }
 
-    pd->dev = SCStrdup(dev);
-    if (unlikely(pd->dev == NULL)) {
-        SCFree(pd);
-        return -1;
-    }
+  pd->dev = SCStrdup(dev);
+  if (unlikely(pd->dev == NULL)) {
+    SCFree(pd);
+    return -1;
+  }
 
-    TAILQ_INSERT_TAIL(&pre_live_devices, pd, next);
+  TAILQ_INSERT_TAIL(&pre_live_devices, pd, next);
 
-    SCLogDebug("Device \"%s\" registered.", dev);
-    return 0;
+  SCLogDebug("Device \"%s\" registered.", dev);
+  return 0;
 }
 
 /**
@@ -123,37 +112,36 @@ int LiveRegisterDeviceName(const char *dev)
  *  \retval 0 on success.
  *  \retval -1 on failure.
  */
-int LiveRegisterDevice(const char *dev)
-{
-    LiveDevice *pd = NULL;
+int LiveRegisterDevice(const char *dev) {
+  LiveDevice *pd = NULL;
 
-    pd = SCCalloc(1, sizeof(LiveDevice) + LiveDevStorageSize());
-    if (unlikely(pd == NULL)) {
-        return -1;
-    }
+  pd = SCCalloc(1, sizeof(LiveDevice) + LiveDevStorageSize());
+  if (unlikely(pd == NULL)) {
+    return -1;
+  }
 
-    int id = LiveGetDeviceCount();
-    if (id > UINT16_MAX) {
-        SCFree(pd);
-        return -1;
-    }
+  int id = LiveGetDeviceCount();
+  if (id > UINT16_MAX) {
+    SCFree(pd);
+    return -1;
+  }
 
-    pd->dev = SCStrdup(dev);
-    if (unlikely(pd->dev == NULL)) {
-        SCFree(pd);
-        return -1;
-    }
-    /* create a short version to be used in thread names */
-    LiveSafeDeviceName(pd->dev, pd->dev_short, sizeof(pd->dev_short));
+  pd->dev = SCStrdup(dev);
+  if (unlikely(pd->dev == NULL)) {
+    SCFree(pd);
+    return -1;
+  }
+  /* create a short version to be used in thread names */
+  LiveSafeDeviceName(pd->dev, pd->dev_short, sizeof(pd->dev_short));
 
-    SC_ATOMIC_INIT(pd->pkts);
-    SC_ATOMIC_INIT(pd->drop);
-    SC_ATOMIC_INIT(pd->invalid_checksums);
-    pd->id = (uint16_t)id;
-    TAILQ_INSERT_TAIL(&live_devices, pd, next);
+  SC_ATOMIC_INIT(pd->pkts);
+  SC_ATOMIC_INIT(pd->drop);
+  SC_ATOMIC_INIT(pd->invalid_checksums);
+  pd->id = (uint16_t)id;
+  TAILQ_INSERT_TAIL(&live_devices, pd, next);
 
-    SCLogDebug("Device \"%s\" registered and created.", dev);
-    return 0;
+  SCLogDebug("Device \"%s\" registered and created.", dev);
+  return 0;
 }
 
 /**
@@ -161,16 +149,13 @@ int LiveRegisterDevice(const char *dev)
  *
  *  \retval cnt the number of registered devices
  */
-int LiveGetDeviceCount(void)
-{
-    int i = 0;
-    LiveDevice *pd;
+int LiveGetDeviceCount(void) {
+  int i = 0;
+  LiveDevice *pd;
 
-    TAILQ_FOREACH(pd, &live_devices, next) {
-        i++;
-    }
+  TAILQ_FOREACH(pd, &live_devices, next) { i++; }
 
-    return i;
+  return i;
 }
 
 /**
@@ -181,20 +166,19 @@ int LiveGetDeviceCount(void)
  *  \retval ptr pointer to the string containing the device
  *  \retval NULL on error
  */
-const char *LiveGetDeviceName(int number)
-{
-    int i = 0;
-    LiveDevice *pd;
+const char *LiveGetDeviceName(int number) {
+  int i = 0;
+  LiveDevice *pd;
 
-    TAILQ_FOREACH(pd, &live_devices, next) {
-        if (i == number) {
-            return pd->dev;
-        }
-
-        i++;
+  TAILQ_FOREACH(pd, &live_devices, next) {
+    if (i == number) {
+      return pd->dev;
     }
 
-    return NULL;
+    i++;
+  }
+
+  return NULL;
 }
 
 /** \internal
@@ -204,37 +188,37 @@ const char *LiveGetDeviceName(int number)
  *
  *  \retval None, is added to destination char *newdevname
  */
-static int LiveSafeDeviceName(const char *devname, char *newdevname, size_t destlen)
-{
-    const size_t devnamelen = strlen(devname);
+static int LiveSafeDeviceName(const char *devname, char *newdevname,
+                              size_t destlen) {
+  const size_t devnamelen = strlen(devname);
 
-    /* If we have to shorten the interface name */
-    if (devnamelen > MAX_DEVNAME) {
-        /* special mode for DPDK pci addresses */
-        if (devnamelen >= 5 && strncmp(devname, "0000:", 5) == 0) {
-            strlcpy(newdevname, devname + 5, destlen);
-            return 0;
-        }
-
-        /* IF the dest length is over 10 chars long it will not do any
-         * good for the shortening. The shortening is done due to the
-         * max length of pthread names (15 chars) and we use 3 chars
-         * for the threadname indicator eg. "W#-" and one-two chars for
-         * the thread number. And if the destination buffer is under
-         * 6 chars there is no point in shortening it since we must at
-         * least enter two periods (.) into the string.
-         */
-        if ((destlen-1) > 10 || (destlen-1) < 6) {
-            return 1;
-        }
-
-        ShortenString(devname, newdevname, destlen, '.');
-
-        SCLogInfo("%s: shortening device name to %s", devname, newdevname);
-    } else {
-        strlcpy(newdevname, devname, destlen);
+  /* If we have to shorten the interface name */
+  if (devnamelen > MAX_DEVNAME) {
+    /* special mode for DPDK pci addresses */
+    if (devnamelen >= 5 && strncmp(devname, "0000:", 5) == 0) {
+      strlcpy(newdevname, devname + 5, destlen);
+      return 0;
     }
-    return 0;
+
+    /* IF the dest length is over 10 chars long it will not do any
+     * good for the shortening. The shortening is done due to the
+     * max length of pthread names (15 chars) and we use 3 chars
+     * for the threadname indicator eg. "W#-" and one-two chars for
+     * the thread number. And if the destination buffer is under
+     * 6 chars there is no point in shortening it since we must at
+     * least enter two periods (.) into the string.
+     */
+    if ((destlen - 1) > 10 || (destlen - 1) < 6) {
+      return 1;
+    }
+
+    ShortenString(devname, newdevname, destlen, '.');
+
+    SCLogInfo("%s: shortening device name to %s", devname, newdevname);
+  } else {
+    strlcpy(newdevname, devname, destlen);
+  }
+  return 0;
 }
 
 /**
@@ -245,188 +229,173 @@ static int LiveSafeDeviceName(const char *devname, char *newdevname, size_t dest
  *  \retval ptr pointer to the string containing the device
  *  \retval NULL on error
  */
-LiveDevice *LiveGetDevice(const char *name)
-{
-    LiveDevice *pd;
+LiveDevice *LiveGetDevice(const char *name) {
+  LiveDevice *pd;
 
-    if (name == NULL) {
-        SCLogWarning("Name of device should not be null");
-        return NULL;
-    }
-
-    TAILQ_FOREACH(pd, &live_devices, next) {
-        if (!strcmp(name, pd->dev)) {
-            return pd;
-        }
-    }
-
+  if (name == NULL) {
+    SCLogWarning("Name of device should not be null");
     return NULL;
-}
+  }
 
-const char *LiveGetShortName(const char *dev)
-{
-    LiveDevice *live_dev = LiveGetDevice(dev);
-    if (live_dev == NULL)
-        return NULL;
-    return live_dev->dev_short;
-}
-
-int LiveBuildDeviceList(const char *runmode)
-{
-    return LiveBuildDeviceListCustom(runmode, "interface");
-}
-
-int LiveBuildDeviceListCustom(const char *runmode, const char *itemname)
-{
-    ConfNode *base = ConfGetNode(runmode);
-    ConfNode *child;
-    int i = 0;
-
-    if (base == NULL)
-        return 0;
-
-    TAILQ_FOREACH(child, &base->head, next) {
-        ConfNode *subchild;
-        TAILQ_FOREACH(subchild, &child->head, next) {
-            if ((!strcmp(subchild->name, itemname))) {
-                if (!strcmp(subchild->val, "default"))
-                    break;
-                SCLogConfig("Adding %s %s from config file",
-                          itemname, subchild->val);
-                LiveRegisterDeviceName(subchild->val);
-                i++;
-            }
-        }
+  TAILQ_FOREACH(pd, &live_devices, next) {
+    if (!strcmp(name, pd->dev)) {
+      return pd;
     }
+  }
 
-    return i;
+  return NULL;
+}
+
+const char *LiveGetShortName(const char *dev) {
+  LiveDevice *live_dev = LiveGetDevice(dev);
+  if (live_dev == NULL) return NULL;
+  return live_dev->dev_short;
+}
+
+int LiveBuildDeviceList(const char *runmode) {
+  return LiveBuildDeviceListCustom(runmode, "interface");
+}
+
+int LiveBuildDeviceListCustom(const char *runmode, const char *itemname) {
+  ConfNode *base = ConfGetNode(runmode);
+  ConfNode *child;
+  int i = 0;
+
+  if (base == NULL) return 0;
+
+  TAILQ_FOREACH(child, &base->head, next) {
+    ConfNode *subchild;
+    TAILQ_FOREACH(subchild, &child->head, next) {
+      if ((!strcmp(subchild->name, itemname))) {
+        if (!strcmp(subchild->val, "default")) break;
+        SCLogConfig("Adding %s %s from config file", itemname, subchild->val);
+        LiveRegisterDeviceName(subchild->val);
+        i++;
+      }
+    }
+  }
+
+  return i;
 }
 
 /** Call this function to disable stat on live devices
  *
  * This can be useful in the case, this is not a real interface.
  */
-void LiveDeviceHasNoStats(void)
-{
-    live_devices_stats = 0;
-}
+void LiveDeviceHasNoStats(void) { live_devices_stats = 0; }
 
-int LiveDeviceListClean(void)
-{
-    SCEnter();
-    LiveDevice *pd, *tpd;
+int LiveDeviceListClean(void) {
+  SCEnter();
+  LiveDevice *pd, *tpd;
 
-    TAILQ_FOREACH_SAFE(pd, &live_devices, next, tpd) {
-        if (live_devices_stats) {
-            SCLogNotice("%s: packets: %" PRIu64 ", drops: %" PRIu64
-                        " (%.2f%%), invalid chksum: %" PRIu64,
-                    pd->dev, SC_ATOMIC_GET(pd->pkts), SC_ATOMIC_GET(pd->drop),
-                    SC_ATOMIC_GET(pd->pkts) > 0 ? 100 * ((double)SC_ATOMIC_GET(pd->drop)) /
-                                                          (double)SC_ATOMIC_GET(pd->pkts)
-                                                : 0,
-                    SC_ATOMIC_GET(pd->invalid_checksums));
-        }
-
-        RestoreIfaceOffloading(pd);
-        DPDKCloseDevice(pd);
-
-        if (pd->dev)
-            SCFree(pd->dev);
-        LiveDevFreeStorage(pd);
-        SCFree(pd);
+  TAILQ_FOREACH_SAFE(pd, &live_devices, next, tpd) {
+    if (live_devices_stats) {
+      SCLogNotice("%s: packets: %" PRIu64 ", drops: %" PRIu64
+                  " (%.2f%%), invalid chksum: %" PRIu64,
+                  pd->dev, SC_ATOMIC_GET(pd->pkts), SC_ATOMIC_GET(pd->drop),
+                  SC_ATOMIC_GET(pd->pkts) > 0
+                      ? 100 * ((double)SC_ATOMIC_GET(pd->drop)) /
+                            (double)SC_ATOMIC_GET(pd->pkts)
+                      : 0,
+                  SC_ATOMIC_GET(pd->invalid_checksums));
     }
 
-    SCReturnInt(TM_ECODE_OK);
+    RestoreIfaceOffloading(pd);
+    DPDKCloseDevice(pd);
+
+    if (pd->dev) SCFree(pd->dev);
+    LiveDevFreeStorage(pd);
+    SCFree(pd);
+  }
+
+  SCReturnInt(TM_ECODE_OK);
 }
 
 #ifdef BUILD_UNIX_SOCKET
-TmEcode LiveDeviceIfaceStat(json_t *cmd, json_t *answer, void *data)
-{
-    SCEnter();
-    LiveDevice *pd;
-    const char * name = NULL;
-    json_t *jarg = json_object_get(cmd, "iface");
-    if(!json_is_string(jarg)) {
-        json_object_set_new(answer, "message", json_string("Iface is not a string"));
-        SCReturnInt(TM_ECODE_FAILED);
-    }
-    name = json_string_value(jarg);
-    if (name == NULL) {
-        json_object_set_new(answer, "message", json_string("Iface name is NULL"));
-        SCReturnInt(TM_ECODE_FAILED);
-    }
-
-    TAILQ_FOREACH(pd, &live_devices, next) {
-        if (!strcmp(name, pd->dev)) {
-            json_t *jdata = json_object();
-            if (jdata == NULL) {
-                json_object_set_new(answer, "message",
-                        json_string("internal error at json object creation"));
-                SCReturnInt(TM_ECODE_FAILED);
-            }
-            json_object_set_new(jdata, "pkts",
-                                json_integer(SC_ATOMIC_GET(pd->pkts)));
-            json_object_set_new(jdata, "invalid-checksums",
-                                json_integer(SC_ATOMIC_GET(pd->invalid_checksums)));
-            json_object_set_new(jdata, "drop",
-                                json_integer(SC_ATOMIC_GET(pd->drop)));
-            json_object_set_new(jdata, "bypassed",
-                                json_integer(SC_ATOMIC_GET(pd->bypassed)));
-            json_object_set_new(answer, "message", jdata);
-            SCReturnInt(TM_ECODE_OK);
-        }
-    }
-    json_object_set_new(answer, "message", json_string("Iface does not exist"));
+TmEcode LiveDeviceIfaceStat(json_t *cmd, json_t *answer, void *data) {
+  SCEnter();
+  LiveDevice *pd;
+  const char *name = NULL;
+  json_t *jarg = json_object_get(cmd, "iface");
+  if (!json_is_string(jarg)) {
+    json_object_set_new(answer, "message",
+                        json_string("Iface is not a string"));
     SCReturnInt(TM_ECODE_FAILED);
+  }
+  name = json_string_value(jarg);
+  if (name == NULL) {
+    json_object_set_new(answer, "message", json_string("Iface name is NULL"));
+    SCReturnInt(TM_ECODE_FAILED);
+  }
+
+  TAILQ_FOREACH(pd, &live_devices, next) {
+    if (!strcmp(name, pd->dev)) {
+      json_t *jdata = json_object();
+      if (jdata == NULL) {
+        json_object_set_new(
+            answer, "message",
+            json_string("internal error at json object creation"));
+        SCReturnInt(TM_ECODE_FAILED);
+      }
+      json_object_set_new(jdata, "pkts", json_integer(SC_ATOMIC_GET(pd->pkts)));
+      json_object_set_new(jdata, "invalid-checksums",
+                          json_integer(SC_ATOMIC_GET(pd->invalid_checksums)));
+      json_object_set_new(jdata, "drop", json_integer(SC_ATOMIC_GET(pd->drop)));
+      json_object_set_new(jdata, "bypassed",
+                          json_integer(SC_ATOMIC_GET(pd->bypassed)));
+      json_object_set_new(answer, "message", jdata);
+      SCReturnInt(TM_ECODE_OK);
+    }
+  }
+  json_object_set_new(answer, "message", json_string("Iface does not exist"));
+  SCReturnInt(TM_ECODE_FAILED);
 }
 
-TmEcode LiveDeviceIfaceList(json_t *cmd, json_t *answer, void *data)
-{
-    SCEnter();
-    json_t *jdata;
-    json_t *jarray;
-    LiveDevice *pd;
-    int i = 0;
+TmEcode LiveDeviceIfaceList(json_t *cmd, json_t *answer, void *data) {
+  SCEnter();
+  json_t *jdata;
+  json_t *jarray;
+  LiveDevice *pd;
+  int i = 0;
 
-    jdata = json_object();
-    if (jdata == NULL) {
-        json_object_set_new(answer, "message",
-                            json_string("internal error at json object creation"));
-        return TM_ECODE_FAILED;
-    }
-    jarray = json_array();
-    if (jarray == NULL) {
-        json_object_set_new(answer, "message",
-                            json_string("internal error at json object creation"));
-        return TM_ECODE_FAILED;
-    }
-    TAILQ_FOREACH(pd, &live_devices, next) {
-        json_array_append_new(jarray, json_string(pd->dev));
-        i++;
-    }
+  jdata = json_object();
+  if (jdata == NULL) {
+    json_object_set_new(answer, "message",
+                        json_string("internal error at json object creation"));
+    return TM_ECODE_FAILED;
+  }
+  jarray = json_array();
+  if (jarray == NULL) {
+    json_object_set_new(answer, "message",
+                        json_string("internal error at json object creation"));
+    return TM_ECODE_FAILED;
+  }
+  TAILQ_FOREACH(pd, &live_devices, next) {
+    json_array_append_new(jarray, json_string(pd->dev));
+    i++;
+  }
 
-    json_object_set_new(jdata, "count", json_integer(i));
-    json_object_set_new(jdata, "ifaces", jarray);
-    json_object_set_new(answer, "message", jdata);
-    SCReturnInt(TM_ECODE_OK);
+  json_object_set_new(jdata, "count", json_integer(i));
+  json_object_set_new(jdata, "ifaces", jarray);
+  json_object_set_new(answer, "message", jdata);
+  SCReturnInt(TM_ECODE_OK);
 }
 
 #endif /* BUILD_UNIX_SOCKET */
 
-LiveDevice *LiveDeviceForEach(LiveDevice **ldev, LiveDevice **ndev)
-{
-    if (*ldev == NULL) {
-        *ldev = TAILQ_FIRST(&live_devices);
-        *ndev = TAILQ_NEXT(*ldev, next);
-        return *ldev;
-    } else {
-        *ldev = *ndev;
-        if (*ldev) {
-            *ndev = TAILQ_NEXT(*ldev, next);
-        }
-        return *ldev;
+LiveDevice *LiveDeviceForEach(LiveDevice **ldev, LiveDevice **ndev) {
+  if (*ldev == NULL) {
+    *ldev = TAILQ_FIRST(&live_devices);
+    *ndev = TAILQ_NEXT(*ldev, next);
+    return *ldev;
+  } else {
+    *ldev = *ndev;
+    if (*ldev) {
+      *ndev = TAILQ_NEXT(*ldev, next);
     }
-    return NULL;
+    return *ldev;
+  }
+  return NULL;
 }
 
 /**
@@ -435,51 +404,46 @@ LiveDevice *LiveDeviceForEach(LiveDevice **ldev, LiveDevice **ndev)
  * This function creates all needed LiveDevice from
  * the LiveDeviceName list created via LiveRegisterDevice()
  */
-void LiveDeviceFinalize(void)
-{
-    LiveDeviceName *ld, *pld;
-    SCLogDebug("Finalize live device");
-    /* Iter on devices and register them */
-    TAILQ_FOREACH_SAFE(ld, &pre_live_devices, next, pld) {
-        if (ld->dev) {
-            LiveRegisterDevice(ld->dev);
-            SCFree(ld->dev);
-        }
-        SCFree(ld);
+void LiveDeviceFinalize(void) {
+  LiveDeviceName *ld, *pld;
+  SCLogDebug("Finalize live device");
+  /* Iter on devices and register them */
+  TAILQ_FOREACH_SAFE(ld, &pre_live_devices, next, pld) {
+    if (ld->dev) {
+      LiveRegisterDevice(ld->dev);
+      SCFree(ld->dev);
     }
+    SCFree(ld);
+  }
 }
 
-static void LiveDevExtensionFree(void *x)
-{
-    if (x)
-        SCFree(x);
+static void LiveDevExtensionFree(void *x) {
+  if (x) SCFree(x);
 }
 
 /**
  * Register bypass stats storage
  */
-void LiveDevRegisterExtension(void)
-{
-    g_bypass_storage_id = LiveDevStorageRegister("bypass_stats", sizeof(void *),
-                                                 NULL, LiveDevExtensionFree);
+void LiveDevRegisterExtension(void) {
+  g_bypass_storage_id = LiveDevStorageRegister("bypass_stats", sizeof(void *),
+                                               NULL, LiveDevExtensionFree);
 }
 
 /**
  * Prepare a LiveDevice so we can set bypass stats
  */
-int LiveDevUseBypass(LiveDevice *dev)
-{
-    BypassInfo *bpinfo = SCCalloc(1, sizeof(*bpinfo));
-    if (bpinfo == NULL) {
-        SCLogError("Can't allocate bypass info structure");
-        return -1;
-    }
+int LiveDevUseBypass(LiveDevice *dev) {
+  BypassInfo *bpinfo = SCCalloc(1, sizeof(*bpinfo));
+  if (bpinfo == NULL) {
+    SCLogError("Can't allocate bypass info structure");
+    return -1;
+  }
 
-    SC_ATOMIC_INIT(bpinfo->ipv4_hash_count);
-    SC_ATOMIC_INIT(bpinfo->ipv4_hash_count);
+  SC_ATOMIC_INIT(bpinfo->ipv4_hash_count);
+  SC_ATOMIC_INIT(bpinfo->ipv4_hash_count);
 
-    LiveDevSetStorageById(dev, g_bypass_storage_id, bpinfo);
-    return 0;
+  LiveDevSetStorageById(dev, g_bypass_storage_id, bpinfo);
+  return 0;
 }
 
 /**
@@ -489,16 +453,15 @@ int LiveDevUseBypass(LiveDevice *dev)
  * \param cnt number of currently bypassed flows
  * \param family AF_INET to set IPv4 count or AF_INET6 to set IPv6 count
  */
-void LiveDevSetBypassStats(LiveDevice *dev, uint64_t cnt, int family)
-{
-    BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
-    if (bpfdata) {
-        if (family == AF_INET) {
-            SC_ATOMIC_SET(bpfdata->ipv4_hash_count, cnt);
-        } else if (family == AF_INET6) {
-            SC_ATOMIC_SET(bpfdata->ipv6_hash_count, cnt);
-        }
+void LiveDevSetBypassStats(LiveDevice *dev, uint64_t cnt, int family) {
+  BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
+  if (bpfdata) {
+    if (family == AF_INET) {
+      SC_ATOMIC_SET(bpfdata->ipv4_hash_count, cnt);
+    } else if (family == AF_INET6) {
+      SC_ATOMIC_SET(bpfdata->ipv6_hash_count, cnt);
     }
+  }
 }
 
 /**
@@ -508,16 +471,15 @@ void LiveDevSetBypassStats(LiveDevice *dev, uint64_t cnt, int family)
  * \param cnt number of flows to add
  * \param family AF_INET to set IPv4 count or AF_INET6 to set IPv6 count
  */
-void LiveDevAddBypassStats(LiveDevice *dev, uint64_t cnt, int family)
-{
-    BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
-    if (bpfdata) {
-        if (family == AF_INET) {
-            SC_ATOMIC_ADD(bpfdata->ipv4_hash_count, cnt);
-        } else if (family == AF_INET6) {
-            SC_ATOMIC_ADD(bpfdata->ipv6_hash_count, cnt);
-        }
+void LiveDevAddBypassStats(LiveDevice *dev, uint64_t cnt, int family) {
+  BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
+  if (bpfdata) {
+    if (family == AF_INET) {
+      SC_ATOMIC_ADD(bpfdata->ipv4_hash_count, cnt);
+    } else if (family == AF_INET6) {
+      SC_ATOMIC_ADD(bpfdata->ipv6_hash_count, cnt);
     }
+  }
 }
 
 /**
@@ -527,16 +489,15 @@ void LiveDevAddBypassStats(LiveDevice *dev, uint64_t cnt, int family)
  * \param cnt number of flows to remove
  * \param family AF_INET to set IPv4 count or AF_INET6 to set IPv6 count
  */
-void LiveDevSubBypassStats(LiveDevice *dev, uint64_t cnt, int family)
-{
-    BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
-    if (bpfdata) {
-        if (family == AF_INET) {
-            SC_ATOMIC_SUB(bpfdata->ipv4_hash_count, cnt);
-        } else if (family == AF_INET6) {
-            SC_ATOMIC_SUB(bpfdata->ipv6_hash_count, cnt);
-        }
+void LiveDevSubBypassStats(LiveDevice *dev, uint64_t cnt, int family) {
+  BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
+  if (bpfdata) {
+    if (family == AF_INET) {
+      SC_ATOMIC_SUB(bpfdata->ipv4_hash_count, cnt);
+    } else if (family == AF_INET6) {
+      SC_ATOMIC_SUB(bpfdata->ipv6_hash_count, cnt);
     }
+  }
 }
 
 /**
@@ -546,77 +507,78 @@ void LiveDevSubBypassStats(LiveDevice *dev, uint64_t cnt, int family)
  * \param cnt number of flows to add
  * \param family AF_INET to set IPv4 count or AF_INET6 to set IPv6 count
  */
-void LiveDevAddBypassFail(LiveDevice *dev, uint64_t cnt, int family)
-{
-    BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
-    if (bpfdata) {
-        if (family == AF_INET) {
-            SC_ATOMIC_ADD(bpfdata->ipv4_fail, cnt);
-        } else if (family == AF_INET6) {
-            SC_ATOMIC_ADD(bpfdata->ipv6_fail, cnt);
-        }
+void LiveDevAddBypassFail(LiveDevice *dev, uint64_t cnt, int family) {
+  BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
+  if (bpfdata) {
+    if (family == AF_INET) {
+      SC_ATOMIC_ADD(bpfdata->ipv4_fail, cnt);
+    } else if (family == AF_INET6) {
+      SC_ATOMIC_ADD(bpfdata->ipv6_fail, cnt);
     }
+  }
 }
 
 /**
- * Increase number of currently successfully bypassed flows for a protocol family
+ * Increase number of currently successfully bypassed flows for a protocol
+ * family
  *
  * \param dev pointer to LiveDevice to set stats for
  * \param cnt number of flows to add
  * \param family AF_INET to set IPv4 count or AF_INET6 to set IPv6 count
  */
-void LiveDevAddBypassSuccess(LiveDevice *dev, uint64_t cnt, int family)
-{
-    BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
-    if (bpfdata) {
-        if (family == AF_INET) {
-            SC_ATOMIC_ADD(bpfdata->ipv4_success, cnt);
-        } else if (family == AF_INET6) {
-            SC_ATOMIC_ADD(bpfdata->ipv6_success, cnt);
-        }
+void LiveDevAddBypassSuccess(LiveDevice *dev, uint64_t cnt, int family) {
+  BypassInfo *bpfdata = LiveDevGetStorageById(dev, g_bypass_storage_id);
+  if (bpfdata) {
+    if (family == AF_INET) {
+      SC_ATOMIC_ADD(bpfdata->ipv4_success, cnt);
+    } else if (family == AF_INET6) {
+      SC_ATOMIC_ADD(bpfdata->ipv6_success, cnt);
     }
+  }
 }
 
 #ifdef BUILD_UNIX_SOCKET
-TmEcode LiveDeviceGetBypassedStats(json_t *cmd, json_t *answer, void *data)
-{
-    LiveDevice *ldev = NULL, *ndev = NULL;
+TmEcode LiveDeviceGetBypassedStats(json_t *cmd, json_t *answer, void *data) {
+  LiveDevice *ldev = NULL, *ndev = NULL;
 
-    json_t *ifaces = NULL;
-    while(LiveDeviceForEach(&ldev, &ndev)) {
-        BypassInfo *bpinfo = LiveDevGetStorageById(ldev, g_bypass_storage_id);
-        if (bpinfo) {
-            uint64_t ipv4_hash_count = SC_ATOMIC_GET(bpinfo->ipv4_hash_count);
-            uint64_t ipv6_hash_count = SC_ATOMIC_GET(bpinfo->ipv6_hash_count);
-            uint64_t ipv4_success = SC_ATOMIC_GET(bpinfo->ipv4_success);
-            uint64_t ipv4_fail = SC_ATOMIC_GET(bpinfo->ipv4_fail);
-            uint64_t ipv6_success = SC_ATOMIC_GET(bpinfo->ipv6_success);
-            uint64_t ipv6_fail = SC_ATOMIC_GET(bpinfo->ipv6_fail);
-            json_t *iface = json_object();
-            if (ifaces == NULL) {
-                ifaces = json_object();
-                if (ifaces == NULL) {
-                    json_object_set_new(answer, "message",
-                            json_string("internal error at json object creation"));
-                    return TM_ECODE_FAILED;
-                }
-            }
-            json_object_set_new(iface, "ipv4_maps_count", json_integer(ipv4_hash_count));
-            json_object_set_new(iface, "ipv4_success", json_integer(ipv4_success));
-            json_object_set_new(iface, "ipv4_fail", json_integer(ipv4_fail));
-            json_object_set_new(iface, "ipv6_maps_count", json_integer(ipv6_hash_count));
-            json_object_set_new(iface, "ipv6_success", json_integer(ipv6_success));
-            json_object_set_new(iface, "ipv6_fail", json_integer(ipv6_fail));
-            json_object_set_new(ifaces, ldev->dev, iface);
+  json_t *ifaces = NULL;
+  while (LiveDeviceForEach(&ldev, &ndev)) {
+    BypassInfo *bpinfo = LiveDevGetStorageById(ldev, g_bypass_storage_id);
+    if (bpinfo) {
+      uint64_t ipv4_hash_count = SC_ATOMIC_GET(bpinfo->ipv4_hash_count);
+      uint64_t ipv6_hash_count = SC_ATOMIC_GET(bpinfo->ipv6_hash_count);
+      uint64_t ipv4_success = SC_ATOMIC_GET(bpinfo->ipv4_success);
+      uint64_t ipv4_fail = SC_ATOMIC_GET(bpinfo->ipv4_fail);
+      uint64_t ipv6_success = SC_ATOMIC_GET(bpinfo->ipv6_success);
+      uint64_t ipv6_fail = SC_ATOMIC_GET(bpinfo->ipv6_fail);
+      json_t *iface = json_object();
+      if (ifaces == NULL) {
+        ifaces = json_object();
+        if (ifaces == NULL) {
+          json_object_set_new(
+              answer, "message",
+              json_string("internal error at json object creation"));
+          return TM_ECODE_FAILED;
         }
+      }
+      json_object_set_new(iface, "ipv4_maps_count",
+                          json_integer(ipv4_hash_count));
+      json_object_set_new(iface, "ipv4_success", json_integer(ipv4_success));
+      json_object_set_new(iface, "ipv4_fail", json_integer(ipv4_fail));
+      json_object_set_new(iface, "ipv6_maps_count",
+                          json_integer(ipv6_hash_count));
+      json_object_set_new(iface, "ipv6_success", json_integer(ipv6_success));
+      json_object_set_new(iface, "ipv6_fail", json_integer(ipv6_fail));
+      json_object_set_new(ifaces, ldev->dev, iface);
     }
-    if (ifaces) {
-        json_object_set_new(answer, "message", ifaces);
-        SCReturnInt(TM_ECODE_OK);
-    }
+  }
+  if (ifaces) {
+    json_object_set_new(answer, "message", ifaces);
+    SCReturnInt(TM_ECODE_OK);
+  }
 
-    json_object_set_new(answer, "message",
-                        json_string("No interface using bypass"));
-    SCReturnInt(TM_ECODE_FAILED);
+  json_object_set_new(answer, "message",
+                      json_string("No interface using bypass"));
+  SCReturnInt(TM_ECODE_FAILED);
 }
 #endif

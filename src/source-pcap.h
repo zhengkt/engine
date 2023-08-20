@@ -24,39 +24,37 @@
 #ifndef __SOURCE_PCAP_H__
 #define __SOURCE_PCAP_H__
 
-void TmModuleReceivePcapRegister (void);
-void TmModuleDecodePcapRegister (void);
+void TmModuleReceivePcapRegister(void);
+void TmModuleDecodePcapRegister(void);
 void PcapTranslateIPToDevice(char *pcap_dev, size_t len);
 
-#define LIBPCAP_COPYWAIT    500
-#define LIBPCAP_PROMISC     1
+#define LIBPCAP_COPYWAIT 500
+#define LIBPCAP_PROMISC 1
 
 /* per packet Pcap vars */
-typedef struct PcapPacketVars_
-{
-    uint32_t tenant_id;
+typedef struct PcapPacketVars_ {
+  uint32_t tenant_id;
 } PcapPacketVars;
 
 /** needs to be able to contain Windows adapter id's, so
  *  must be quite long. */
 #define PCAP_IFACE_NAME_LENGTH 128
 
-typedef struct PcapIfaceConfig_
-{
-    char iface[PCAP_IFACE_NAME_LENGTH];
-    /* number of threads */
-    int threads;
-    /* socket buffer size */
-    int buffer_size;
-    /* snapshot length */
-    int snaplen;
-    /* promiscuous value */
-    int promisc;
-    /* BPF filter */
-    const char *bpf_filter;
-    ChecksumValidationMode checksum_mode;
-    SC_ATOMIC_DECLARE(unsigned int, ref);
-    void (*DerefFunc)(void *);
+typedef struct PcapIfaceConfig_ {
+  char iface[PCAP_IFACE_NAME_LENGTH];
+  /* number of threads */
+  int threads;
+  /* socket buffer size */
+  int buffer_size;
+  /* snapshot length */
+  int snaplen;
+  /* promiscuous value */
+  int promisc;
+  /* BPF filter */
+  const char *bpf_filter;
+  ChecksumValidationMode checksum_mode;
+  SC_ATOMIC_DECLARE(unsigned int, ref);
+  void (*DerefFunc)(void *);
 } PcapIfaceConfig;
 
 #endif /* __SOURCE_PCAP_H__ */
