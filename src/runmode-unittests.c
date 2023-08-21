@@ -124,97 +124,96 @@
 
 #endif /* UNITTESTS */
 
-void TmqhSetup (void);
+void TmqhSetup(void);
 
 #ifdef UNITTESTS
-static void RegisterUnittests(void)
-{
-    UTHRegisterTests();
-    StreamTcpRegisterTests();
-    SigRegisterTests();
-    SCReputationRegisterTests();
-    TmModuleRegisterTests();
-    SigTableRegisterTests();
-    HashTableRegisterTests();
-    HashListTableRegisterTests();
-    BloomFilterRegisterTests();
-    BloomFilterCountingRegisterTests();
-    PoolRegisterTests();
-    ByteRegisterTests();
-    MpmRegisterTests();
-    FlowBitRegisterTests();
-    HostBitRegisterTests();
-    IPPairBitRegisterTests();
-    StatsRegisterTests();
-    DecodeEthernetRegisterTests();
-    DecodeCHDLCRegisterTests();
-    DecodePPPRegisterTests();
-    DecodeVLANRegisterTests();
-    DecodeVNTagRegisterTests();
-    DecodeGeneveRegisterTests();
-    DecodeVXLANRegisterTests();
-    DecodeRawRegisterTests();
-    DecodePPPOERegisterTests();
-    DecodeICMPV4RegisterTests();
-    DecodeICMPV6RegisterTests();
-    DecodeIPV4RegisterTests();
-    DecodeIPV6RegisterTests();
-    DecodeTCPRegisterTests();
-    DecodeUDPV4RegisterTests();
-    DecodeGRERegisterTests();
-    DecodeESPRegisterTests();
-    DecodeMPLSRegisterTests();
-    DecodeNSHRegisterTests();
-    AppLayerProtoDetectUnittestsRegister();
-    ConfRegisterTests();
-    ConfYamlRegisterTests();
-    TmqhFlowRegisterTests();
-    FlowRegisterTests();
-    HostRegisterUnittests();
-    IPPairRegisterUnittests();
-    SCSigRegisterSignatureOrderingTests();
-    SCRadixRegisterTests();
-    DefragRegisterTests();
-    SigGroupHeadRegisterTests();
-    SCHInfoRegisterTests();
-    SCRuleVarsRegisterTests();
-    AppLayerParserRegisterUnittests();
-    ThreadMacrosRegisterTests();
-    UtilSpmSearchRegistertests();
-    UtilActionRegisterTests();
-    Base64RegisterTests();
-    SCClassConfRegisterTests();
-    SCThresholdConfRegisterTests();
-    SCRConfRegisterTests();
-    PayloadRegisterTests();
-    DcePayloadRegisterTests();
+static void RegisterUnittests(void) {
+  UTHRegisterTests();
+  StreamTcpRegisterTests();
+  SigRegisterTests();
+  SCReputationRegisterTests();
+  TmModuleRegisterTests();
+  SigTableRegisterTests();
+  HashTableRegisterTests();
+  HashListTableRegisterTests();
+  BloomFilterRegisterTests();
+  BloomFilterCountingRegisterTests();
+  PoolRegisterTests();
+  ByteRegisterTests();
+  MpmRegisterTests();
+  FlowBitRegisterTests();
+  HostBitRegisterTests();
+  IPPairBitRegisterTests();
+  StatsRegisterTests();
+  DecodeEthernetRegisterTests();
+  DecodeCHDLCRegisterTests();
+  DecodePPPRegisterTests();
+  DecodeVLANRegisterTests();
+  DecodeVNTagRegisterTests();
+  DecodeGeneveRegisterTests();
+  DecodeVXLANRegisterTests();
+  DecodeRawRegisterTests();
+  DecodePPPOERegisterTests();
+  DecodeICMPV4RegisterTests();
+  DecodeICMPV6RegisterTests();
+  DecodeIPV4RegisterTests();
+  DecodeIPV6RegisterTests();
+  DecodeTCPRegisterTests();
+  DecodeUDPV4RegisterTests();
+  DecodeGRERegisterTests();
+  DecodeESPRegisterTests();
+  DecodeMPLSRegisterTests();
+  DecodeNSHRegisterTests();
+  AppLayerProtoDetectUnittestsRegister();
+  ConfRegisterTests();
+  ConfYamlRegisterTests();
+  TmqhFlowRegisterTests();
+  FlowRegisterTests();
+  HostRegisterUnittests();
+  IPPairRegisterUnittests();
+  SCSigRegisterSignatureOrderingTests();
+  SCRadixRegisterTests();
+  DefragRegisterTests();
+  SigGroupHeadRegisterTests();
+  SCHInfoRegisterTests();
+  SCRuleVarsRegisterTests();
+  AppLayerParserRegisterUnittests();
+  ThreadMacrosRegisterTests();
+  UtilSpmSearchRegistertests();
+  UtilActionRegisterTests();
+  Base64RegisterTests();
+  SCClassConfRegisterTests();
+  SCThresholdConfRegisterTests();
+  SCRConfRegisterTests();
+  PayloadRegisterTests();
+  DcePayloadRegisterTests();
 #ifdef PROFILING
-    SCProfilingRegisterTests();
+  SCProfilingRegisterTests();
 #endif
-    DeStateRegisterTests();
-    MemcmpRegisterTests();
-    DetectEngineRegisterTests();
-    SCLogRegisterTests();
-    MagicRegisterTests();
-    UtilMiscRegisterTests();
-    DetectAddressTests();
-    DetectProtoTests();
-    DetectPortTests();
-    DetectEngineAlertRegisterTests();
-    SCAtomicRegisterTests();
-    MemrchrRegisterTests();
-    AppLayerUnittestsRegister();
-    MimeDecRegisterTests();
-    StreamingBufferRegisterTests();
-    MacSetRegisterTests();
+  DeStateRegisterTests();
+  MemcmpRegisterTests();
+  DetectEngineRegisterTests();
+  SCLogRegisterTests();
+  MagicRegisterTests();
+  UtilMiscRegisterTests();
+  DetectAddressTests();
+  DetectProtoTests();
+  DetectPortTests();
+  DetectEngineAlertRegisterTests();
+  SCAtomicRegisterTests();
+  MemrchrRegisterTests();
+  AppLayerUnittestsRegister();
+  MimeDecRegisterTests();
+  StreamingBufferRegisterTests();
+  MacSetRegisterTests();
 #ifdef OS_WIN32
-    Win32SyscallRegisterTests();
+  Win32SyscallRegisterTests();
 #endif
 #ifdef WINDIVERT
-    SourceWinDivertRegisterTests();
+  SourceWinDivertRegisterTests();
 #endif
-    SCProtoNameRegisterTests();
-    UtilCIDRTests();
+  SCProtoNameRegisterTests();
+  UtilCIDRTests();
 }
 #endif
 
@@ -227,76 +226,75 @@ static void RegisterUnittests(void)
  * This function is terminal and will call exit after being called.
  */
 
-void RunUnittests(int list_unittests, const char *regex_arg)
-{
+void RunUnittests(int list_unittests, const char *regex_arg) {
 #ifdef UNITTESTS
-    /* Initializations for global vars, queues, etc (memsets, mutex init..) */
-    GlobalsInitPreConfig();
-    EngineModeSetIDS();
+  /* Initializations for global vars, queues, etc (memsets, mutex init..) */
+  GlobalsInitPreConfig();
+  EngineModeSetIDS();
 
 #ifdef HAVE_LUAJIT
-    if (LuajitSetupStatesPool() != 0) {
-        exit(EXIT_FAILURE);
-    }
+  if (LuajitSetupStatesPool() != 0) {
+    exit(EXIT_FAILURE);
+  }
 #endif
 
-    default_packet_size = DEFAULT_PACKET_SIZE;
-    /* load the pattern matchers */
-    MpmTableSetup();
-    SpmTableSetup();
+  default_packet_size = DEFAULT_PACKET_SIZE;
+  /* load the pattern matchers */
+  MpmTableSetup();
+  SpmTableSetup();
 
-    StorageInit();
-    AppLayerSetup();
+  StorageInit();
+  AppLayerSetup();
 
-    /* hardcoded initialization code */
-    SigTableSetup(); /* load the rule keywords */
-    TmqhSetup();
+  /* hardcoded initialization code */
+  SigTableSetup(); /* load the rule keywords */
+  TmqhSetup();
 
-    TagInitCtx();
+  TagInitCtx();
 
-    UtInitialize();
+  UtInitialize();
 
-    RegisterAllModules();
+  RegisterAllModules();
 
-    HostBitInitCtx();
+  HostBitInitCtx();
 
-    StorageFinalize();
-    /* test and initialize the unit testing subsystem */
-    if (regex_arg == NULL){
-        regex_arg = ".*";
-        UtRunSelftest(regex_arg); /* inits and cleans up again */
-    }
+  StorageFinalize();
+  /* test and initialize the unit testing subsystem */
+  if (regex_arg == NULL) {
+    regex_arg = ".*";
+    UtRunSelftest(regex_arg); /* inits and cleans up again */
+  }
 
-    AppLayerHtpEnableRequestBodyCallback();
-    AppLayerHtpNeedFileInspection();
+  AppLayerHtpEnableRequestBodyCallback();
+  AppLayerHtpNeedFileInspection();
 
-    RegisterUnittests();
+  RegisterUnittests();
 
-    if (list_unittests) {
-        UtListTests(regex_arg);
-    } else {
-        /* global packet pool */
-        extern uint16_t max_pending_packets;
-        max_pending_packets = 128;
-        PacketPoolInit();
+  if (list_unittests) {
+    UtListTests(regex_arg);
+  } else {
+    /* global packet pool */
+    extern uint16_t max_pending_packets;
+    max_pending_packets = 128;
+    PacketPoolInit();
 
-        uint32_t failed = UtRunTests(regex_arg);
-        PacketPoolDestroy();
-        UtCleanup();
+    uint32_t failed = UtRunTests(regex_arg);
+    PacketPoolDestroy();
+    UtCleanup();
 #ifdef BUILD_HYPERSCAN
-        MpmHSGlobalCleanup();
+    MpmHSGlobalCleanup();
 #endif
-        if (failed) {
-            exit(EXIT_FAILURE);
-        }
+    if (failed) {
+      exit(EXIT_FAILURE);
     }
+  }
 
 #ifdef HAVE_LUAJIT
-    LuajitFreeStatesPool();
+  LuajitFreeStatesPool();
 #endif
 
-    exit(EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
 #else
-    FatalError("Unittests are not build-in");
+  FatalError("Unittests are not build-in");
 #endif /* UNITTESTS */
 }

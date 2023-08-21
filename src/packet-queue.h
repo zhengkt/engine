@@ -32,11 +32,11 @@
  *        layouts except for the mutex_q and cond_q fields.
  */
 typedef struct PacketQueueNoLock_ {
-    struct Packet_ *top;
-    struct Packet_ *bot;
-    uint32_t len;
+  struct Packet_ *top;
+  struct Packet_ *bot;
+  uint32_t len;
 #ifdef DBG_PERF
-    uint32_t dbg_maxlen;
+  uint32_t dbg_maxlen;
 #endif /* DBG_PERF */
 } PacketQueueNoLock;
 
@@ -47,25 +47,23 @@ typedef struct PacketQueueNoLock_ {
  *        layouts except for the mutex_q and cond_q fields.
  */
 typedef struct PacketQueue_ {
-    struct Packet_ *top;
-    struct Packet_ *bot;
-    uint32_t len;
+  struct Packet_ *top;
+  struct Packet_ *bot;
+  uint32_t len;
 #ifdef DBG_PERF
-    uint32_t dbg_maxlen;
+  uint32_t dbg_maxlen;
 #endif /* DBG_PERF */
-    SCMutex mutex_q;
-    SCCondT cond_q;
+  SCMutex mutex_q;
+  SCCondT cond_q;
 } PacketQueue;
 
-
 void PacketEnqueueNoLock(PacketQueueNoLock *qnl, struct Packet_ *p);
-void PacketEnqueue (PacketQueue *, struct Packet_ *);
+void PacketEnqueue(PacketQueue *, struct Packet_ *);
 
-struct Packet_ *PacketDequeueNoLock (PacketQueueNoLock *qnl);
-struct Packet_ *PacketDequeue (PacketQueue *);
+struct Packet_ *PacketDequeueNoLock(PacketQueueNoLock *qnl);
+struct Packet_ *PacketDequeue(PacketQueue *);
 
 PacketQueue *PacketQueueAlloc(void);
 void PacketQueueFree(PacketQueue *);
 
 #endif /* __PACKET_QUEUE_H__ */
-
