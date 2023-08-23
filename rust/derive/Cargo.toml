@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 proc-macro = true
-path = "/home/zhengkt/IDS/engine/rust/derive/src/lib.rs"
+path = "/home/zhengkt/ids/engine/rust/derive/src/lib.rs"
 
 [dependencies]
 proc-macro-crate = "= 1.1.0"
