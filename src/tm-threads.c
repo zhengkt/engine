@@ -590,7 +590,7 @@ static TmEcode TmThreadSetSlots(ThreadVars *tv, const char *name,
       printf(
           "Both slot name and function pointer can't be NULL inside "
           "TmThreadSetSlots\n");
-      goto error;
+      return TM_ECODE_FAILED;
     } else {
       name = "custom";
     }
@@ -605,17 +605,15 @@ static TmEcode TmThreadSetSlots(ThreadVars *tv, const char *name,
   } else if (strcmp(name, "command") == 0) {
     tv->tm_func = TmThreadsManagement;
   } else if (strcmp(name, "custom") == 0) {
-    if (fn_p == NULL) goto error;
+    if (fn_p == NULL) {
+      return TM_ECODE_FAILED;
+    }
     tv->tm_func = fn_p;
   } else {
     printf("Error: Slot \"%s\" not supported\n", name);
-    goto error;
+    return TM_ECODE_FAILED;
   }
-
   return TM_ECODE_OK;
-
-error:
-  return TM_ECODE_FAILED;
 }
 
 /**
