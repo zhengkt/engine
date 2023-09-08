@@ -111,13 +111,13 @@ am__can_run_installinfo = \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/zhengkt/IDS/engine/missing aclocal-1.13
+ACLOCAL = ${SHELL} /home/zhengkt/ids/engine/missing aclocal-1.13
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 0
 AR = ar
-AUTOCONF = ${SHELL} /home/zhengkt/IDS/engine/missing autoconf
-AUTOHEADER = ${SHELL} /home/zhengkt/IDS/engine/missing autoheader
-AUTOMAKE = ${SHELL} /home/zhengkt/IDS/engine/missing automake-1.13
+AUTOCONF = ${SHELL} /home/zhengkt/ids/engine/missing autoconf
+AUTOHEADER = ${SHELL} /home/zhengkt/ids/engine/missing autoheader
+AUTOMAKE = ${SHELL} /home/zhengkt/ids/engine/missing automake-1.13
 AWK = gawk
 CARGO = /usr/bin/cargo
 CARGO_BUILD_TARGET = 
@@ -225,7 +225,7 @@ LUA_CFLAGS =
 LUA_INT8 = 
 LUA_LIBS = 
 MAJOR_MINOR = 7.0
-MAKEINFO = ${SHELL} /home/zhengkt/IDS/engine/missing makeinfo
+MAKEINFO = ${SHELL} /home/zhengkt/ids/engine/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /usr/bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -265,10 +265,10 @@ SHELL = /bin/sh
 STRIP = strip
 SURICATA_UPDATE_DIR = suricata-update
 VERSION = 7.0.0
-abs_builddir = /home/zhengkt/IDS/engine/suricata-update
-abs_srcdir = /home/zhengkt/IDS/engine/suricata-update
-abs_top_builddir = /home/zhengkt/IDS/engine
-abs_top_srcdir = /home/zhengkt/IDS/engine
+abs_builddir = /home/zhengkt/ids/engine/suricata-update
+abs_srcdir = /home/zhengkt/ids/engine/suricata-update
+abs_top_builddir = /home/zhengkt/ids/engine
+abs_top_srcdir = /home/zhengkt/ids/engine
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -300,7 +300,7 @@ e_logfilesdir = /usr/local/var/log/suricata/files
 e_magic_file = 
 e_magic_file_comment = #
 e_rundir = /usr/local/var/run/
-e_rustdir = /home/zhengkt/IDS/engine/rust
+e_rustdir = /home/zhengkt/ids/engine/rust
 e_sysconfdir = /usr/local/etc/suricata/
 enable_non_bundled_htp = no
 exec_prefix = ${prefix}
@@ -313,7 +313,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/zhengkt/IDS/engine/install-sh
+install_sh = ${SHELL} /home/zhengkt/ids/engine/install-sh
 install_suricata_update_reason = 
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
@@ -364,9 +364,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu suricata-update/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign suricata-update/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu suricata-update/Makefile
+	  $(AUTOMAKE) --foreign suricata-update/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
